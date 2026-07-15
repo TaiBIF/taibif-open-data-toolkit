@@ -1,0 +1,20 @@
+{
+  "name": "taibif-open-data-toolkit",
+  "version": "1.0.0",
+  "description": "A TaiBIF desktop toolkit for preparing biodiversity open data with Darwin Core templates, editing, validation, and cleaning workflows for IPT and GBIF publishing.",
+  "license": "MIT",
+  "author": {
+    "name": "Jhu-Jyun Jhang",
+    "email": "jhujyunjhang@gmail.com",
+    "url": "https://github.com/JJJHANG"
+  },
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "postinstall": "npm run rebuild && npm run link-modules",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.7"
+  }
+}
