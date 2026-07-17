@@ -1,0 +1,133 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag, for example v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - name: Create release if needed
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists."
+          else
+            gh release create "$RELEASE_TAG" \
+              --title "$RELEASE_TAG" \
+              --notes "TaiBIF Open Data Toolkit $RELEASE_TAG"
+          fi
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Intel
+            os: macos-latest
+            command: npx electron-builder --mac dmg zip --x64 --publish never
+            artifact_name: macos-intel
+            # Set this to true after Apple Developer Program signing certificates are available.
+            csc_identity_auto_discovery: false
+          - name: macOS Apple Silicon
+            os: macos-latest
+            command: npx electron-builder --mac dmg zip --arm64 --publish never
+            artifact_name: macos-arm64
+            # Set this to true after Apple Developer Program signing certificates are available.
+            csc_identity_auto_discovery: false
+          - name: Windows
+            os: windows-latest
+            command: npx electron-builder --win nsis --x64 --publish never
+            artifact_name: windows-x64
+            csc_identity_auto_discovery: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.csc_identity_auto_discovery }}
+      # Apple Developer Program signing/notarization secrets.
+      # Enable these after the certificates and Apple account secrets are configured.
+      # CSC_LINK: ${{ secrets.CSC_LINK }}
+      # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      # APPLE_ID: ${{ secrets.APPLE_ID }}
+      # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+      # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Enable this step after Apple Developer Program signing/notarization is configured.
+      # - name: Validate macOS signing secrets
+      #   if: runner.os == 'macOS'
+      #   shell: bash
+      #   run: |
+      #     missing=0
+      #
+      #     for name in CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_ID_PASS APPLE_TEAM_ID; do
+      #       if [ -z "${!name}" ]; then
+      #         echo "::error::$name is required for macOS signing and notarization."
+      #         missing=1
+      #       fi
+      #     done
+      #
+      #     if [ "$missing" -ne 0 ]; then
+      #       exit 1
+      #     fi
+
+      - name: Build application
+        run: |
+          npx ts-node ./.erb/scripts/clean.js
+          npm run build
+          ${{ matrix.command }}
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            release/build/*.dmg
+            release/build/*.zip
+            release/build/*.exe
+            release/build/*.msi
+          if-no-files-found: error
+
+      - name: Upload files to GitHub Release
+        shell: bash
+        run: |
+          mapfile -d '' files < <(
+            find release/build -maxdepth 1 -type f \
+              \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.msi' \) \
+              -print0
+          )
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No release files found."
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" "${files[@]}" --clobber
