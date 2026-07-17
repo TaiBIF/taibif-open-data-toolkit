@@ -55,6 +55,29 @@ function promisifyDb(database: sqlite3.Database) {
   };
 }
 
+const SYSTEM_TABLES = [
+  'intro',
+  'template_core_checklist',
+  'template_core_occurrence',
+  'template_core_samplingevent',
+  'template_extension_dna_derived_data',
+  'template_extension_extended_measurement_or_facts',
+  'template_extension_occurrence',
+  'template_extension_resource_relationship',
+  'template_extension_simple_multimedia',
+];
+
+const quoteIdentifier = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
+const closeDatabase = (database: sqlite3.Database) => {
+  return new Promise<void>((resolve, reject) => {
+    database.close((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
+
 const checkDatabaseIntegrity = (dbPath: string) => {
   return new Promise<boolean>((resolve) => {
     const database = new sqlite3.Database(
@@ -88,6 +111,69 @@ const checkDatabaseIntegrity = (dbPath: string) => {
   });
 };
 
+const syncSystemTablesFromBundledDb = async (
+  dbPath: string,
+  bundledDbPath: string,
+) => {
+  const maintenanceDb = new sqlite3.Database(dbPath);
+  const maintenance = promisifyDb(maintenanceDb);
+  const placeholders = SYSTEM_TABLES.map(() => '?').join(', ');
+
+  try {
+    await maintenance.run('ATTACH DATABASE ? AS bundled', [bundledDbPath]);
+
+    const schemaRows = await maintenance.all<{ name: string; sql: string }>(
+      `SELECT name, sql
+       FROM bundled.sqlite_master
+       WHERE type = 'table'
+         AND name IN (${placeholders})`,
+      SYSTEM_TABLES,
+    );
+    const createSqlByTable = new Map(
+      schemaRows.map((row) => [row.name, row.sql]),
+    );
+
+    await maintenance.exec('PRAGMA foreign_keys = OFF');
+    await maintenance.exec('BEGIN');
+
+    await SYSTEM_TABLES.reduce<Promise<void>>(async (previous, tableName) => {
+      await previous;
+
+      const createSql = createSqlByTable.get(tableName);
+      if (!createSql) {
+        throw new Error(`Missing bundled system table: ${tableName}`);
+      }
+
+      const quotedTable = quoteIdentifier(tableName);
+      await maintenance.exec(`DROP TABLE IF EXISTS ${quotedTable}`);
+      await maintenance.exec(createSql);
+      await maintenance.exec(
+        `INSERT INTO ${quotedTable} SELECT * FROM bundled.${quotedTable}`,
+      );
+    }, Promise.resolve());
+
+    await maintenance.exec('COMMIT');
+    await maintenance.run('DETACH DATABASE bundled');
+  } catch (err) {
+    try {
+      await maintenance.exec('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error(
+        'Rollback failed while syncing system tables:',
+        rollbackErr,
+      );
+    }
+    try {
+      await maintenance.run('DETACH DATABASE bundled');
+    } catch (detachErr) {
+      console.error('Detach failed while syncing system tables:', detachErr);
+    }
+    throw err;
+  } finally {
+    await closeDatabase(maintenanceDb);
+  }
+};
+
 export const initDatabase = async () => {
   const dbPath = app.isPackaged
     ? path.join(app.getPath('userData'), 'odt.sqlite3') // 正式
@@ -97,6 +183,11 @@ export const initDatabase = async () => {
     const userDataPath = app.getPath('userData');
     const dbVersionTagPath = path.join(userDataPath, 'odt-db-version.txt');
     const packagedVersion = app.getVersion();
+    const initialDbPath = path.join(
+      process.resourcesPath,
+      'assets',
+      'odt.sqlite3',
+    );
     const existingVersionTag = fs.existsSync(dbVersionTagPath)
       ? fs.readFileSync(dbVersionTagPath, 'utf-8').trim()
       : '';
@@ -104,27 +195,24 @@ export const initDatabase = async () => {
     const userDbIsHealthy = dbExists
       ? await checkDatabaseIntegrity(dbPath)
       : false;
-    const shouldRefreshDb =
-      !dbExists || !userDbIsHealthy || existingVersionTag !== packagedVersion;
+    const shouldRebuildDb = !dbExists || !userDbIsHealthy;
+    const shouldSyncSystemTables =
+      dbExists && userDbIsHealthy && existingVersionTag !== packagedVersion;
 
-    // 每次 app 版本更新或本機 DB 損壞時，用新打包資源中的 DB 覆蓋本機 DB
-    if (shouldRefreshDb) {
+    // 本機 DB 不存在或損壞時，才用新打包資源中的 DB 重建整份 DB。
+    if (shouldRebuildDb) {
       if (dbExists) {
         const backupPath = path.join(
           userDataPath,
-          userDbIsHealthy
-            ? `odt.sqlite3.backup-${Date.now()}`
-            : `odt.sqlite3.corrupt-${Date.now()}`,
+          `odt.sqlite3.corrupt-${Date.now()}`,
         );
         fs.copyFileSync(dbPath, backupPath);
       }
 
-      const initialDbPath = path.join(
-        process.resourcesPath,
-        'assets',
-        'odt.sqlite3',
-      );
       fs.copyFileSync(initialDbPath, dbPath);
+      fs.writeFileSync(dbVersionTagPath, packagedVersion, 'utf-8');
+    } else if (shouldSyncSystemTables) {
+      await syncSystemTablesFromBundledDb(dbPath, initialDbPath);
       fs.writeFileSync(dbVersionTagPath, packagedVersion, 'utf-8');
     }
   }

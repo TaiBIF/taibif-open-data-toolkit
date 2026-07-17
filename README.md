@@ -137,11 +137,11 @@ assets/odt.sqlite3
 
 In development mode, the app reads this file directly.
 
-In packaged builds, this same file is bundled into the app resources. On startup, the packaged app copies the bundled database into the app user data folder when needed, then reads and writes the user data copy.
+In packaged builds, this same file is bundled into the app resources. On startup, the packaged app copies the bundled database into the app user data folder when the user data database does not exist, then reads and writes the user data copy.
 
 This database is intended to be a clean starting point. After cloning the repository and starting the app, create a project and select a template before using the data editing and data cleaning tables.
 
-The packaged app also checks the user data database with SQLite integrity checking and rebuilds it from the bundled database if corruption is detected.
+The packaged app also checks the user data database with SQLite integrity checking and rebuilds it from the bundled database if corruption is detected. If the user data database is healthy, app updates do not replace user-created projects or table data. Instead, the app syncs bundled system tables such as `intro` and `template_*` tables when the app version changes.
 
 ### Native Dependency Notes
 
