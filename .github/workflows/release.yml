@@ -128,15 +128,13 @@ jobs:
       - name: Upload files to GitHub Release
         shell: bash
         run: |
-          mapfile -d '' files < <(
-            find release/build -maxdepth 1 -type f \
-              \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.msi' \) \
-              -print0
-          )
-
-          if [ "${#files[@]}" -eq 0 ]; then
+          if ! find release/build -maxdepth 1 -type f \
+            \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.msi' \) \
+            -print -quit | grep -q .; then
             echo "No release files found."
             exit 1
           fi
 
-          gh release upload "$RELEASE_TAG" "${files[@]}" --clobber
+          find release/build -maxdepth 1 -type f \
+            \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.msi' \) \
+            -exec gh release upload "$RELEASE_TAG" {} --clobber \;
