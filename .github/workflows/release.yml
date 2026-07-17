@@ -81,8 +81,14 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install app dependencies
+        run: npm --prefix release/app ci
+
+      - name: Build development DLL
+        run: npm run build:dll
 
       # Enable this step after Apple Developer Program signing/notarization is configured.
       # - name: Validate macOS signing secrets
