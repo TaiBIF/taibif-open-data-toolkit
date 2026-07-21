@@ -78,6 +78,7 @@ type Props = {
   pageSize: number;
   height?: number | string;
   markCustomHeaders?: boolean;
+  autoAppendEmptyPage?: boolean;
   onTotalRowsChange?: (total: number) => void;
   onSaveStatusChange?: (status: SaveStatus) => void;
   textFilter?: {
@@ -138,6 +139,7 @@ const CustomHotTable = forwardRef<HotTableApi, Props>(
       pageSize,
       height = '100%',
       markCustomHeaders = false,
+      autoAppendEmptyPage = false,
       onTotalRowsChange,
       onSaveStatusChange,
       textFilter = null,
@@ -360,6 +362,8 @@ const CustomHotTable = forwardRef<HotTableApi, Props>(
           // 新專案第一次進入：自動補一頁空白列
           const autoKey = `${projectId}-${tableName}`;
           if (
+            autoAppendEmptyPage &&
+            !textFilter &&
             total === 0 &&
             page === 1 &&
             !autoAppendDoneRef.current.has(autoKey)

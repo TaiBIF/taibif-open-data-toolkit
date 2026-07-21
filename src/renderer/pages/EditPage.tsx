@@ -655,6 +655,7 @@ const EditPage = () => {
                     : 610
                 }
                 markCustomHeaders
+                autoAppendEmptyPage
                 onTotalRowsChange={setTotalRows}
                 onSaveStatusChange={setSaveStatus}
               />
