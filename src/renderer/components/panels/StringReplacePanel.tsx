@@ -81,9 +81,10 @@ const StringReplacePanel = ({
   const [to, setTo] = useState('');
   const [scopeMode, setScopeMode] = useState<ApplyScopeMode>('all');
   const [rowNumbersInput, setRowNumbersInput] = useState('');
+  const normalizedFrom = mode === 'regex' ? from : from.trim();
 
   const { matchedCount, sample } = useMemo(() => {
-    const q = from.trim();
+    const q = mode === 'regex' ? from : from.trim();
     if (!q) return { matchedCount: 0, sample: [] as FacetValue[] };
 
     let matcher: (v: string) => boolean;
@@ -96,7 +97,16 @@ const StringReplacePanel = ({
     } else {
       try {
         const re = new RegExp(q);
-        matcher = (v) => re.test(v ?? '');
+        matcher = (v) => {
+          const value = v ?? '';
+          re.lastIndex = 0;
+          if (re.test(value)) {
+            re.lastIndex = 0;
+            return true;
+          }
+          re.lastIndex = 0;
+          return value.trim() === '' && re.test(' ');
+        };
       } catch {
         return { matchedCount: 0, sample: [] as FacetValue[] };
       }
@@ -109,7 +119,7 @@ const StringReplacePanel = ({
 
   const regexInvalid = useMemo(() => {
     if (mode !== 'regex') return false;
-    const q = from.trim();
+    const q = from;
     if (!q) return false;
     try {
       new RegExp(q);
@@ -120,7 +130,7 @@ const StringReplacePanel = ({
   }, [mode, from]);
 
   const canReplace =
-    from.trim().length > 0 && !regexInvalid && matchedCount > 0;
+    normalizedFrom.length > 0 && !regexInvalid && matchedCount > 0;
   const parsedRowNumbers = parseRowNumbers(rowNumbersInput);
   const rowNumbersInvalid = scopeMode === 'rows' && parsedRowNumbers == null;
   const rowNumbersEmpty =
@@ -259,7 +269,7 @@ const StringReplacePanel = ({
             onReplace({
               field: facet.field,
               mode,
-              from: from.trim(),
+              from: normalizedFrom,
               to,
               rowNumbers:
                 scopeMode === 'rows' && Array.isArray(parsedRowNumbers)

@@ -221,6 +221,12 @@ export const registerCleanHandlers = () => {
       } else if (mode === 'fuzzy') {
         regex = new RegExp(escapeRegExp(from), 'gi');
       }
+      const regexMatchesBlankValue = (re: RegExp) => {
+        re.lastIndex = 0;
+        const matched = re.test(' ');
+        re.lastIndex = 0;
+        return matched;
+      };
 
       try {
         await pdb.exec('BEGIN');
@@ -241,8 +247,7 @@ export const registerCleanHandlers = () => {
           if (!Number.isFinite(id) || id <= 0) continue;
           const parsed = r?.data ? JSON.parse(r.data) : {};
           const raw = parsed?.[fieldKey];
-          if (raw == null) continue;
-          const str = String(raw);
+          const str = raw == null ? '' : String(raw);
 
           let next: string | null = null;
 
@@ -252,6 +257,11 @@ export const registerCleanHandlers = () => {
             if (regex.test(str)) {
               regex.lastIndex = 0;
               next = str.replace(regex, to);
+            } else {
+              regex.lastIndex = 0;
+              if (str.trim() === '' && regexMatchesBlankValue(regex)) {
+                next = str === '' ? to : str.replace(regex, to);
+              }
             }
           }
 

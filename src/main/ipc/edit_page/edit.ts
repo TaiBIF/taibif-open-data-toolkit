@@ -537,11 +537,30 @@ export const registerEditHandlers = () => {
           typeof tf.fieldKey === 'string' &&
           /^[A-Za-z0-9_]+$/.test(tf.fieldKey) &&
           typeof tf.query === 'string' &&
-          (tf.kind === 'duplicate' || tf.query.trim().length > 0);
+          (tf.kind === 'duplicate' ||
+            (tf.mode === 'regex'
+              ? tf.query.length > 0
+              : tf.query.trim().length > 0));
 
         if (hasFilter && tf) {
           const jsonPath = `$.${tf.fieldKey}`;
-          const query = tf.query.trim();
+          const query = tf.mode === 'regex' ? tf.query : tf.query.trim();
+          const regexMatchesBlankValue = (re: RegExp) => {
+            re.lastIndex = 0;
+            const matched = re.test(' ');
+            re.lastIndex = 0;
+            return matched;
+          };
+          const valueMatchesRegex = (re: RegExp, raw: unknown) => {
+            const value = raw == null ? '' : String(raw);
+            re.lastIndex = 0;
+            if (re.test(value)) {
+              re.lastIndex = 0;
+              return true;
+            }
+            re.lastIndex = 0;
+            return value.trim() === '' && regexMatchesBlankValue(re);
+          };
 
           if (tf.kind === 'duplicate') {
             let queryMatcher: ((value: string) => boolean) | null = null;
@@ -556,7 +575,7 @@ export const registerEditHandlers = () => {
               } else {
                 try {
                   const re = new RegExp(query);
-                  queryMatcher = (value) => re.test(value);
+                  queryMatcher = (value) => valueMatchesRegex(re, value);
                 } catch {
                   return { total: 0, rows: [] };
                 }
@@ -619,7 +638,7 @@ export const registerEditHandlers = () => {
             const matched = (allRows ?? []).filter((r: any) => {
               const parsed = r?.data ? JSON.parse(r.data) : {};
               const v = parsed?.[tf.fieldKey];
-              return re?.test(v == null ? '' : String(v)) ?? false;
+              return re ? valueMatchesRegex(re, v) : false;
             });
 
             const total = matched.length;
@@ -630,8 +649,8 @@ export const registerEditHandlers = () => {
           const valueExpr = `TRIM(CAST(json_extract(data, ?) AS TEXT))`;
           const [whereSql, whereArgs] =
             tf.mode === 'fuzzy'
-              ? [`LOWER(${valueExpr}) LIKE ?`, [`%${tf.query.toLowerCase()}%`]]
-              : [`${valueExpr} = ?`, [tf.query]];
+              ? [`LOWER(${valueExpr}) LIKE ?`, [`%${query.toLowerCase()}%`]]
+              : [`${valueExpr} = ?`, [query]];
 
           const totalRow = await pdb.get(
             `SELECT COUNT(*) AS total

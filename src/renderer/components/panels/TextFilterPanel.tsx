@@ -40,9 +40,10 @@ const TextFilterPanel = ({
   const textFilterText = messages.cleanPage.panels.textFilter;
   const [mode, setMode] = useState<TextFilterMode>('exact');
   const [query, setQuery] = useState('');
+  const normalizedQuery = mode === 'regex' ? query : query.trim();
 
   const { matchedCount, sample } = useMemo(() => {
-    const q = query.trim();
+    const q = mode === 'regex' ? query : query.trim();
     if (!q) return { matchedCount: 0, sample: [] as FacetValue[] };
 
     let matcher: (v: string) => boolean;
@@ -55,7 +56,16 @@ const TextFilterPanel = ({
     } else {
       try {
         const re = new RegExp(q);
-        matcher = (v) => re.test(v ?? '');
+        matcher = (v) => {
+          const value = v ?? '';
+          re.lastIndex = 0;
+          if (re.test(value)) {
+            re.lastIndex = 0;
+            return true;
+          }
+          re.lastIndex = 0;
+          return value.trim() === '' && re.test(' ');
+        };
       } catch {
         return { matchedCount: 0, sample: [] as FacetValue[] };
       }
@@ -68,7 +78,7 @@ const TextFilterPanel = ({
 
   const regexInvalid = useMemo(() => {
     if (mode !== 'regex') return false;
-    const q = query.trim();
+    const q = query;
     if (!q) return false;
     try {
       new RegExp(q);
@@ -79,7 +89,7 @@ const TextFilterPanel = ({
   }, [mode, query]);
 
   const canSearch =
-    query.trim().length > 0 && !regexInvalid && matchedCount > 0;
+    normalizedQuery.length > 0 && !regexInvalid && matchedCount > 0;
 
   const modeLabel: Record<TextFilterMode, string> = {
     exact: textFilterText.modeLabels.exact,
@@ -170,7 +180,7 @@ const TextFilterPanel = ({
             onBatchEdit({
               field: facet.field,
               mode,
-              query: query.trim(),
+              query: normalizedQuery,
             });
           }}
         >
