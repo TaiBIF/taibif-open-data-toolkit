@@ -71,15 +71,19 @@ function HoverMenuButton({
   label,
   startIcon,
   items,
+  disabled = false,
 }: {
   label: string;
   startIcon?: ReactNode;
   items: HoverMenuItem[];
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
 
-  const openMenu = () => setOpen(true);
+  const openMenu = () => {
+    if (!disabled) setOpen(true);
+  };
   const closeMenu = () => setOpen(false);
   const handleClickAway = (event: MouseEvent | TouchEvent) => {
     if (
@@ -102,6 +106,7 @@ function HoverMenuButton({
         variant="outlined"
         startIcon={startIcon}
         onClick={openMenu}
+        disabled={disabled}
         sx={{
           borderColor: 'primary.main',
           color: 'primary.main',
@@ -113,7 +118,7 @@ function HoverMenuButton({
       </Button>
 
       <Popper
-        open={open}
+        open={open && !disabled}
         anchorEl={anchorRef.current}
         placement="bottom-start"
         transition
@@ -535,6 +540,7 @@ const CleanPage = () => {
                     mode: payload.mode,
                     query: payload.query,
                   });
+                  setLeftToolPanel('none');
                   setPage(1);
                   tableRef.current?.reloadPage();
                 }}
@@ -563,6 +569,7 @@ const CleanPage = () => {
                     mode: payload.mode,
                     query: payload.query,
                   });
+                  setLeftToolPanel('none');
                   setPage(1);
                   tableRef.current?.reloadPage();
                 }}
@@ -748,6 +755,7 @@ const CleanPage = () => {
               <HoverMenuButton
                 label={cleanText.menus.filterData} // 資料篩選
                 startIcon={<FilterAltIcon fontSize="small" />}
+                disabled={Boolean(textFilter)}
                 items={[
                   {
                     label: cleanText.menus.filterByContent, // 內容篩選
@@ -800,6 +808,7 @@ const CleanPage = () => {
               <HoverMenuButton
                 label={cleanText.menus.editContent} // 內容修改
                 startIcon={<TuneIcon fontSize="small" />}
+                disabled={Boolean(textFilter)}
                 items={[
                   {
                     label: cleanText.menus.stringReplace, // 字串取代
@@ -837,6 +846,7 @@ const CleanPage = () => {
               <HoverMenuButton
                 label="API"
                 startIcon={<CloudSyncIcon fontSize="small" />}
+                disabled={Boolean(textFilter)}
                 items={[
                   {
                     label: cleanText.menus.speciesApi, // 串接物種 API
