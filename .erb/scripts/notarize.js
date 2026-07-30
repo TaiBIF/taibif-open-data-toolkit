@@ -1,4 +1,7 @@
 const { notarize } = require('@electron/notarize');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const { build } = require('../../package.json');
 
 exports.default = async function notarizeMacos(context) {
@@ -14,25 +17,35 @@ exports.default = async function notarizeMacos(context) {
 
   if (
     !(
-      'APPLE_ID' in process.env &&
-      'APPLE_ID_PASS' in process.env &&
-      'APPLE_TEAM_ID' in process.env
+      'APPLE_API_KEY' in process.env &&
+      'APPLE_API_KEY_ID' in process.env &&
+      'APPLE_API_ISSUER' in process.env
     )
   ) {
     console.warn(
-      'Skipping notarizing step. APPLE_ID, APPLE_ID_PASS, and APPLE_TEAM_ID env variables must be set',
+      'Skipping notarizing step. APPLE_API_KEY, APPLE_API_KEY_ID, and APPLE_API_ISSUER env variables must be set',
     );
     return;
   }
 
   const appName = context.packager.appInfo.productFilename;
+  const apiKeyPath = path.join(
+    os.tmpdir(),
+    `AuthKey_${process.env.APPLE_API_KEY_ID}.p8`,
+  );
+
+  fs.writeFileSync(
+    apiKeyPath,
+    Buffer.from(process.env.APPLE_API_KEY, 'base64'),
+    { mode: 0o600 },
+  );
 
   await notarize({
     tool: 'notarytool',
     appBundleId: build.appId,
     appPath: `${appOutDir}/${appName}.app`,
-    appleId: process.env.APPLE_ID,
-    appleIdPassword: process.env.APPLE_ID_PASS,
-    teamId: process.env.APPLE_TEAM_ID,
+    appleApiKey: apiKeyPath,
+    appleApiKeyId: process.env.APPLE_API_KEY_ID,
+    appleApiIssuer: process.env.APPLE_API_ISSUER,
   });
 };
