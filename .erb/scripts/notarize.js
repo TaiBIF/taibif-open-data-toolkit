@@ -29,6 +29,7 @@ exports.default = async function notarizeMacos(context) {
   }
 
   const appName = context.packager.appInfo.productFilename;
+  const appPath = `${appOutDir}/${appName}.app`;
   const apiKeyPath = path.join(
     os.tmpdir(),
     `AuthKey_${process.env.APPLE_API_KEY_ID}.p8`,
@@ -40,12 +41,16 @@ exports.default = async function notarizeMacos(context) {
     { mode: 0o600 },
   );
 
+  console.log(`Starting macOS notarization for ${appPath}`);
+
   await notarize({
     tool: 'notarytool',
     appBundleId: build.appId,
-    appPath: `${appOutDir}/${appName}.app`,
+    appPath,
     appleApiKey: apiKeyPath,
     appleApiKeyId: process.env.APPLE_API_KEY_ID,
     appleApiIssuer: process.env.APPLE_API_ISSUER,
   });
+
+  console.log(`Completed macOS notarization for ${appPath}`);
 };
