@@ -4,6 +4,33 @@ const os = require('os');
 const path = require('path');
 const { build } = require('../../package.json');
 
+const MAX_NOTARIZATION_ATTEMPTS = 3;
+const NOTARIZATION_RETRY_DELAY_MS = 60 * 1000;
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isTransientNotarizationError(error) {
+  const message = String(error && (error.stack || error.message || error));
+
+  return [
+    'NSURLErrorDomain',
+    'HTTPError',
+    'The Internet connection appears to be offline',
+    'The request timed out',
+    'Could not connect to the server',
+    'network connection was lost',
+    'ECONNRESET',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    'EAI_AGAIN',
+    'socket hang up',
+  ].some((pattern) => message.includes(pattern));
+}
+
 exports.default = async function notarizeMacos(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== 'darwin') {
@@ -43,14 +70,40 @@ exports.default = async function notarizeMacos(context) {
 
   console.log(`Starting macOS notarization for ${appPath}`);
 
-  await notarize({
+  const notarizeOptions = {
     tool: 'notarytool',
     appBundleId: build.appId,
     appPath,
     appleApiKey: apiKeyPath,
     appleApiKeyId: process.env.APPLE_API_KEY_ID,
     appleApiIssuer: process.env.APPLE_API_ISSUER,
-  });
+  };
 
-  console.log(`Completed macOS notarization for ${appPath}`);
+  for (let attempt = 1; attempt <= MAX_NOTARIZATION_ATTEMPTS; attempt += 1) {
+    try {
+      console.log(
+        `macOS notarization attempt ${attempt}/${MAX_NOTARIZATION_ATTEMPTS}`,
+      );
+      await notarize(notarizeOptions);
+      console.log(`Completed macOS notarization for ${appPath}`);
+      return;
+    } catch (error) {
+      const shouldRetry =
+        attempt < MAX_NOTARIZATION_ATTEMPTS &&
+        isTransientNotarizationError(error);
+
+      if (!shouldRetry) {
+        throw error;
+      }
+
+      console.warn(
+        `macOS notarization attempt ${attempt} failed with a transient error. Retrying in ${
+          NOTARIZATION_RETRY_DELAY_MS / 1000
+        } seconds.`,
+      );
+      console.warn(error);
+
+      await sleep(NOTARIZATION_RETRY_DELAY_MS);
+    }
+  }
 };
