@@ -13,6 +13,12 @@ Developed by TaiBIF (Taiwan Biodiversity Information Facility), this toolkit hel
 
 The toolkit is currently designed primarily for Mandarin users, while the interface also includes English and Spanish translations.
 
+## Download
+
+The latest packaged desktop application can be downloaded from the [GitHub Releases page](https://github.com/TaiBIF/taibif-open-data-toolkit/releases/latest).
+
+Choose the file that matches your operating system and computer architecture.
+
 ## Features
 
 ### Template Generator
