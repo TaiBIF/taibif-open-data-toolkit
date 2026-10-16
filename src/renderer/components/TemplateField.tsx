@@ -17,6 +17,7 @@ import {
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useI18n } from '../contexts/i18n';
+import { getTemplateReference } from '../data/templates';
 
 type CheckedFieldsMap = Record<string, Record<string, boolean>>;
 
@@ -55,6 +56,7 @@ export default function TemplateFieldPanel({
   const panelText = messages.templatePage.panel;
   const [showDescription, setShowDescription] = useState(false);
   const [hideUnchecked, setHideUnchecked] = useState(false);
+  const reference = getTemplateReference(templateValue);
 
   const visibleFields = useMemo(() => {
     return hideUnchecked
@@ -130,12 +132,12 @@ export default function TemplateFieldPanel({
           >
             {panelText.descriptionPrefix}{' '}
             <a
-              href="https://dwc.tdwg.org/terms/"
+              href={reference.href}
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#1976d2', textDecoration: 'underline' }}
             >
-              Darwin Core Quick Reference Guide
+              {reference.label}
             </a>{' '}
             {panelText.descriptionSuffix}
           </Typography>

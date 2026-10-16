@@ -20,7 +20,7 @@ export const coreTemplates = [
     group: '生物多樣性領域資料標準',
   },
   {
-    label: '生態檢核 物種名錄',
+    label: '生態檢核 工程基本資料',
     value: 'template_core_ecological_assessment',
     group: '生物多樣性領域資料標準',
   },
@@ -64,8 +64,13 @@ export const extensionTemplates = [
     group: '生物多樣性領域資料標準',
   },
   {
-    label: '生態檢核 物種出現紀錄',
+    label: '生態檢核 生物出現紀錄',
     value: 'template_extension_ecological_assessment_occurrence',
+    group: '生物多樣性領域資料標準',
+  },
+  {
+    label: '生態檢核 生物名錄',
+    value: 'template_extension_ecological_assessment_checklist',
     group: '生物多樣性領域資料標準',
   },
 ];
@@ -75,6 +80,10 @@ export const themeTemplates = [
     label: '自然史典藏',
     value: 'natural_history_collection',
     group: '生物多樣性領域資料標準',
+    reference: {
+      href: 'https://docs.tbiadata.tw/collection/#extension-identification-history',
+      label: 'TBIA 自然史典藏資料交換參考模板',
+    },
     core: {
       label: '自然史典藏 物種出現紀錄',
       value: 'template_core_natural_history_collection',
@@ -96,15 +105,62 @@ export const themeTemplates = [
     label: '生態檢核',
     value: 'ecological_assessment',
     group: '生物多樣性領域資料標準',
+    reference: {
+      href: 'https://docs.tbiadata.tw/PECEP_standard/',
+      label: 'TBIA 生態檢核資料交換參考模板',
+    },
     core: {
-      label: '生態檢核 物種名錄',
+      label: '生態檢核 工程基本資料',
       value: 'template_core_ecological_assessment',
     },
     extensions: [
       {
-        label: '生態檢核 物種出現紀錄',
+        label: '生態檢核 生物出現紀錄',
         value: 'template_extension_ecological_assessment_occurrence',
+      },
+      {
+        label: '生態檢核 生物名錄',
+        value: 'template_extension_ecological_assessment_checklist',
       },
     ],
   },
+  // {
+  //   label: '自動相機',
+  //   value: 'ecological_assessment',
+  //   group: '生物多樣性領域資料標準',
+  //   reference: {
+  //     href: 'https://docs.tbiadata.tw/cameratrap/',
+  //     label: 'TBIA 自動相機資料交換參考模板',
+  //   },
+  //   core: {
+  //     label: '自動相機 佈設資料',
+  //     value: '',
+  //   },
+  //   extensions: [
+  //     {
+  //       label: '自動相機 多媒體資料',
+  //       value: '',
+  //     },
+  //     {
+  //       label: '自動相機 觀察資料',
+  //       value: '',
+  //     },
+  //   ],
+  // },
 ];
+
+const defaultTemplateReference = {
+  href: 'https://dwc.tdwg.org/terms/',
+  label: 'Darwin Core Quick Reference Guide',
+};
+
+// 在主題的 reference 設定來源，核心與延伸資料表共用
+export function getTemplateReference(templateValue: string) {
+  const theme = themeTemplates.find(
+    ({ core, extensions }) =>
+      core.value === templateValue ||
+      extensions.some(({ value }) => value === templateValue),
+  );
+
+  return theme?.reference ?? defaultTemplateReference;
+}

@@ -668,7 +668,7 @@ export const messages: Record<Locale, AppMessages> = {
         template_core_occurrence: '出現紀錄 Occurrence',
         template_core_samplingevent: '調查活動 Sampling Event',
         template_core_natural_history_collection: '自然史典藏 物種出現紀錄',
-        template_core_ecological_assessment: '生態檢核 物種名錄',
+        template_core_ecological_assessment: '生態檢核 工程基本資料',
         template_extension_occurrence: 'Darwin Core Occurrence',
         template_extension_simple_multimedia: 'Simple Multimedia',
         template_extension_extended_measurement_or_facts:
@@ -680,7 +680,9 @@ export const messages: Record<Locale, AppMessages> = {
         template_extension_natural_history_collection_measurment_or_facts:
           '自然史典藏 典藏量測紀錄',
         template_extension_ecological_assessment_occurrence:
-          '生態檢核 物種出現紀錄',
+          '生態檢核 生物出現紀錄',
+        template_extension_ecological_assessment_checklist:
+          '生態檢核 生物名錄',
         natural_history_collection: '自然史典藏',
         ecological_assessment: '生態檢核',
       },
@@ -1181,7 +1183,7 @@ export const messages: Record<Locale, AppMessages> = {
         template_core_samplingevent: 'Sampling Event',
         template_core_natural_history_collection:
           'Natural History Collection Occurrence',
-        template_core_ecological_assessment: 'Ecological Assessment Checklist',
+        template_core_ecological_assessment: 'Ecological Assessment Project Information',
         template_extension_occurrence: 'Darwin Core Occurrence',
         template_extension_simple_multimedia: 'Simple Multimedia',
         template_extension_extended_measurement_or_facts:
@@ -1194,6 +1196,8 @@ export const messages: Record<Locale, AppMessages> = {
           'Natural History Collection Measurement Or Facts',
         template_extension_ecological_assessment_occurrence:
           'Ecological Assessment Occurrence',
+        template_extension_ecological_assessment_checklist:
+          'Ecological Assessment Checklist',
         natural_history_collection: 'Natural History Collection',
         ecological_assessment: 'Ecological Assessment',
       },
@@ -1704,7 +1708,7 @@ export const messages: Record<Locale, AppMessages> = {
         template_core_samplingevent: 'Evento de Muestreo',
         template_core_natural_history_collection:
           'Historia Natural - Ocurrencia',
-        template_core_ecological_assessment: 'Evaluacion Ecologica - Lista',
+        template_core_ecological_assessment: 'Evaluacion Ecologica - Información del proyecto',
         template_extension_occurrence: 'Darwin Core Occurrence',
         template_extension_simple_multimedia: 'Simple Multimedia',
         template_extension_extended_measurement_or_facts:
@@ -1717,6 +1721,8 @@ export const messages: Record<Locale, AppMessages> = {
           'Historia Natural - Medicion o Hechos',
         template_extension_ecological_assessment_occurrence:
           'Evaluacion Ecologica - Ocurrencia',
+        template_extension_ecological_assessment_checklist:
+          'Evaluacion Ecologica - Lista',
         natural_history_collection: 'Historia Natural',
         ecological_assessment: 'Evaluacion Ecologica',
       },
