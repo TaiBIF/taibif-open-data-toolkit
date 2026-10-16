@@ -1158,15 +1158,19 @@ const TemplatePage = () => {
                     </Typography>
                     <ul style={{ paddingLeft: '1.25rem', marginTop: 0 }}>
                       {hoveredField.example
-                        .split(/<br\s*\/?>---<br\s*\/?>/i)
+                        .replace(/<br\s*\/?>/gi, '\n')
+                        .split(/\r?\n\s*---\s*\r?\n/)
+                        .map((line) => line.trim())
+                        .filter(Boolean)
                         .map((line, index) => (
                           <li key={index}>
                             <Typography
                               variant="body2"
                               color="text.secondary"
                               component="span"
+                              sx={{ whiteSpace: 'pre-line' }}
                             >
-                              {line.trim()}
+                              {line}
                             </Typography>
                           </li>
                         ))}
