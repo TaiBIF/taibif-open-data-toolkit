@@ -697,6 +697,10 @@ export const messages: Record<Locale, AppMessages> = {
           '生態檢核 生物名錄',
         natural_history_collection: '自然史典藏',
         ecological_assessment: '生態檢核',
+        camptrap: '自動相機',
+        template_core_camptrap_deployment: '自動相機 佈設資料',
+        template_extension_camptrap_media: '自動相機 多媒體資料',
+        template_extension_camptrap_observation: '自動相機 觀察資料',
       },
       optionGroups: {
         達爾文核心資料表: '達爾文核心資料表',
@@ -1218,6 +1222,10 @@ export const messages: Record<Locale, AppMessages> = {
           'Ecological Assessment Checklist',
         natural_history_collection: 'Natural History Collection',
         ecological_assessment: 'Ecological Assessment',
+        camptrap: 'Camera Trap',
+        template_core_camptrap_deployment: 'Camera Trap Deployment',
+        template_extension_camptrap_media: 'Camera Trap Multimedia',
+        template_extension_camptrap_observation: 'Camera Trap Observation',
       },
       optionGroups: {
         達爾文核心資料表: 'Darwin Core Tables',
@@ -1749,6 +1757,11 @@ export const messages: Record<Locale, AppMessages> = {
           'Evaluacion Ecologica - Lista',
         natural_history_collection: 'Historia Natural',
         ecological_assessment: 'Evaluacion Ecologica',
+        camptrap: 'Cámaras trampa',
+        template_core_camptrap_deployment: 'Cámaras trampa - Datos de despliegue',
+        template_extension_camptrap_media: 'Cámaras trampa - Datos multimedia',
+        template_extension_camptrap_observation:
+          'Cámaras trampa - Datos de observación',
       },
       optionGroups: {
         達爾文核心資料表: 'Tablas Darwin Core',

@@ -124,29 +124,29 @@ export const themeTemplates = [
       },
     ],
   },
-  // {
-  //   label: '自動相機',
-  //   value: 'ecological_assessment',
-  //   group: '生物多樣性領域資料標準',
-  //   reference: {
-  //     href: 'https://docs.tbiadata.tw/cameratrap/',
-  //     label: 'TBIA 自動相機資料交換參考模板',
-  //   },
-  //   core: {
-  //     label: '自動相機 佈設資料',
-  //     value: '',
-  //   },
-  //   extensions: [
-  //     {
-  //       label: '自動相機 多媒體資料',
-  //       value: '',
-  //     },
-  //     {
-  //       label: '自動相機 觀察資料',
-  //       value: '',
-  //     },
-  //   ],
-  // },
+  {
+    label: '自動相機',
+    value: 'camptrap',
+    group: '生物多樣性領域資料標準',
+    reference: {
+      href: 'https://docs.tbiadata.tw/cameratrap/',
+      label: 'TBIA 自動相機資料交換參考模板',
+    },
+    core: {
+      label: '自動相機 佈設資料',
+      value: 'template_core_camptrap_deployment',
+    },
+    extensions: [
+      {
+        label: '自動相機 多媒體資料',
+        value: 'template_extension_camptrap_media',
+      },
+      {
+        label: '自動相機 觀察資料',
+        value: 'template_extension_camptrap_observation',
+      },
+    ],
+  },
 ];
 
 const defaultTemplateReference = {
