@@ -11,11 +11,16 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
+  IconButton,
+  InputAdornment,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useI18n } from '../contexts/i18n';
 import { getTemplateReference } from '../data/templates';
 
@@ -56,15 +61,22 @@ export default function TemplateFieldPanel({
   const panelText = messages.templatePage.panel;
   const [showDescription, setShowDescription] = useState(false);
   const [hideUnchecked, setHideUnchecked] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const reference = getTemplateReference(templateValue);
 
   const visibleFields = useMemo(() => {
-    return hideUnchecked
-      ? fields.filter((field) => {
-          return checkedFields[templateValue]?.[field.column_name];
-        })
-      : fields;
-  }, [hideUnchecked, fields, checkedFields, templateValue]);
+    const query = searchQuery.trim().toLowerCase();
+    return fields.filter((field) => {
+      const matchesSearch =
+        field.column_name.toLowerCase().includes(query) ||
+        (field.common_name ?? '').toLowerCase().includes(query);
+      return (
+        matchesSearch &&
+        (!hideUnchecked || checkedFields[templateValue]?.[field.column_name])
+      );
+    });
+  }, [searchQuery, hideUnchecked, fields, checkedFields, templateValue]);
 
   return (
     <Accordion
@@ -82,7 +94,21 @@ export default function TemplateFieldPanel({
       </AccordionSummary>
 
       <AccordionDetails>
-        <Stack direction="row" spacing={1} sx={{ width: '50%' }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+          <Button
+            size="small"
+            variant="outlined"
+            fullWidth
+            aria-expanded={showFilter}
+            onClick={() => setShowFilter((prev) => !prev)}
+            sx={{
+              borderColor: 'info.main',
+              color: 'info.main',
+              '&:hover': { bgcolor: '#e8eaf6' },
+            }}
+          >
+            {showFilter ? panelText.hideFilter : panelText.showFilter}
+          </Button>
           <Button
             size="small"
             variant="outlined"
@@ -116,6 +142,48 @@ export default function TemplateFieldPanel({
           </Button>
         </Stack>
 
+        <Collapse in={showFilter} timeout={180}>
+          <Box sx={{ pt: 2, px: 0.5, pb: 0.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label={panelText.searchFields}
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+                endAdornment: searchQuery ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      aria-label={panelText.clearSearch}
+                      onClick={() => setSearchQuery('')}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : undefined,
+              }}
+            />
+          </Box>
+        </Collapse>
+        {(showFilter || searchQuery.trim() || hideUnchecked) && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 1, textAlign: 'right' }}
+            role="status"
+          >
+            {panelText.fieldCount
+              .replace('{visible}', String(visibleFields.length))
+              .replace('{total}', String(fields.length))}
+          </Typography>
+        )}
+
         <Collapse in={showDescription} sx={{ mt: 1 }}>
           <Typography
             variant="body2"
@@ -144,6 +212,11 @@ export default function TemplateFieldPanel({
         </Collapse>
 
         <FormGroup sx={{ mt: 1 }}>
+          {visibleFields.length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              {panelText.noMatchingFields}
+            </Typography>
+          )}
           {visibleFields.map((field) => (
             <Box
               key={`${title}-${field.column_name}`}

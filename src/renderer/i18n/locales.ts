@@ -182,6 +182,12 @@ export interface AppMessages {
       templateNameLabel: string;
     };
     panel: {
+      showFilter: string;
+      hideFilter: string;
+      searchFields: string;
+      clearSearch: string;
+      fieldCount: string;
+      noMatchingFields: string;
       hideDescription: string;
       showDescription: string;
       showAllFields: string;
@@ -655,6 +661,12 @@ export const messages: Record<Locale, AppMessages> = {
         templateNameLabel: '模板名稱',
       },
       panel: {
+        showFilter: '篩選欄位',
+        hideFilter: '收合篩選',
+        searchFields: '搜尋欄位名稱或中文名稱',
+        clearSearch: '清除搜尋',
+        fieldCount: '顯示 {visible} / {total} 個欄位',
+        noMatchingFields: '沒有符合條件的欄位',
         hideDescription: '隱藏說明',
         showDescription: '顯示說明',
         showAllFields: '顯示所有欄位',
@@ -1169,6 +1181,12 @@ export const messages: Record<Locale, AppMessages> = {
         templateNameLabel: 'Template Name',
       },
       panel: {
+        showFilter: 'Filter Fields',
+        hideFilter: 'Hide Filter',
+        searchFields: 'Search field or Chinese name',
+        clearSearch: 'Clear search',
+        fieldCount: 'Showing {visible} / {total} fields',
+        noMatchingFields: 'No matching fields',
         hideDescription: 'Hide Description',
         showDescription: 'Show Description',
         showAllFields: 'Show All Fields',
@@ -1694,6 +1712,12 @@ export const messages: Record<Locale, AppMessages> = {
         templateNameLabel: 'Nombre de Plantilla',
       },
       panel: {
+        showFilter: 'Filtrar campos',
+        hideFilter: 'Ocultar filtro',
+        searchFields: 'Buscar por nombre del campo o nombre en chino',
+        clearSearch: 'Borrar búsqueda',
+        fieldCount: 'Mostrando {visible} / {total} campos',
+        noMatchingFields: 'No hay campos que coincidan',
         hideDescription: 'Ocultar Descripcion',
         showDescription: 'Mostrar Descripcion',
         showAllFields: 'Mostrar Todos los Campos',
