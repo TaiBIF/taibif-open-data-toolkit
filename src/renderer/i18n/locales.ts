@@ -909,7 +909,7 @@ export const messages: Record<Locale, AppMessages> = {
           subtitle: '自動補齊物種高階層相關欄位',
           descriptionPrefix: '系統將根據 scientificName 欄位的內容，使用 ',
           descriptionMiddle:
-            ' 進行比對。會先以 Taicol 主要資訊來源進行查詢，若未匹配再以 GBIF 作為資料來源進行補查，並將結果寫入資料表。',
+            ' 進行比對。會先以 TaiCol 主要資訊來源進行查詢，若未匹配再以 GBIF 作為資料來源進行補查，並將結果寫入資料表。',
           descriptionSuffix: '',
           overwriteFieldsPrefix: '串接完成後將會新增、覆寫以下欄位：',
           status: {
@@ -1429,7 +1429,7 @@ export const messages: Record<Locale, AppMessages> = {
           descriptionPrefix:
             'Based on values in the scientificName field, the system uses ',
           descriptionMiddle:
-            ' for matching. It first queries Taicol as the primary source, then falls back to GBIF if no match is found, and writes results back to the table.',
+            ' for matching. It first queries TaiCol as the primary source, then falls back to GBIF if no match is found, and writes results back to the table.',
           descriptionSuffix: '',
           overwriteFieldsPrefix:
             'After completion, the following fields will be added or overwritten:',
@@ -1958,7 +1958,7 @@ export const messages: Record<Locale, AppMessages> = {
           descriptionPrefix:
             'Segun el contenido del campo scientificName, el sistema usa ',
           descriptionMiddle:
-            ' para hacer la coincidencia. Primero consulta Taicol como fuente principal; si no hay coincidencia, usa GBIF como respaldo y escribe el resultado en la tabla.',
+            ' para hacer la coincidencia. Primero consulta TaiCol como fuente principal; si no hay coincidencia, usa GBIF como respaldo y escribe el resultado en la tabla.',
           descriptionSuffix: '',
           overwriteFieldsPrefix:
             'Al finalizar, se agregaran o sobrescribiran los siguientes campos:',
