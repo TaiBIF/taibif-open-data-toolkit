@@ -235,6 +235,7 @@ const CleanPage = () => {
 
     return groupValidationErrors(tableErrors).map((g) => ({
       field: g.title,
+      severity: g.severity,
       errorMessage: '',
       count: g.count,
       rows: g.rows,

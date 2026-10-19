@@ -1,14 +1,15 @@
 import * as React from 'react';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Stack } from '@mui/material';
 import CustomAccordion from './CustomAccordion';
 import ErrorRowList from './ErrorRowList';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useI18n } from '../contexts/i18n';
 import { translateValidationGroupTitle } from '../utils/validationErrorGroups';
 
-import { Stack } from '@mui/material';
-
 export type FieldError = {
   field: string;
+  severity: 'error' | 'warning';
   errorMessage?: string;
   count: number;
   rows: {
@@ -21,7 +22,7 @@ type FieldErrorAccordionListProps = {
   items: FieldError[];
 };
 
-const FieldErrorAccordionList = ({ items }: FieldErrorAccordionListProps) => {
+function FieldErrorAccordionList({ items }: FieldErrorAccordionListProps) {
   const { messages, locale } = useI18n();
   const fieldErrorText = messages.components.fieldErrorAccordionList;
 
@@ -33,13 +34,19 @@ const FieldErrorAccordionList = ({ items }: FieldErrorAccordionListProps) => {
           title={translateValidationGroupTitle(item.field, locale)}
           titleNoWrap={false}
           subtitle={`${fieldErrorText.errorCountPrefix}${item.count}`} // 錯誤筆數：
-          icon={<WarningAmberIcon sx={{ color: 'warning.main' }} />}
+          icon={
+            item.severity === 'error' ? (
+              <ErrorOutlineIcon sx={{ color: 'error.main' }} />
+            ) : (
+              <WarningAmberIcon sx={{ color: 'warning.main' }} />
+            )
+          }
         >
           <ErrorRowList rows={item.rows} />
         </CustomAccordion>
       ))}
     </Stack>
   );
-};
+}
 
 export default FieldErrorAccordionList;
