@@ -82,6 +82,10 @@ jobs:
       - name: Install root dependencies
         run: npm ci --ignore-scripts
 
+      - name: Fix electron-builder macOS keychain password
+        if: runner.os == 'macOS'
+        run: node .erb/scripts/fix-mac-keychain.cjs
+
       - name: Install app dependencies
         run: npm --prefix release/app ci
 
