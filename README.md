@@ -1,188 +1,185 @@
+<div align="center">
+
 # TaiBIF Open Data Toolkit
 
-## Overview
+**Turn biodiversity spreadsheets into standardized data for sharing.**
 
-TaiBIF Open Data Toolkit is a desktop application designed for processing biodiversity open data according to the [Darwin Core](https://dwc.tdwg.org/) standard. It helps data providers move through the core dataset preparation workflow:
+A desktop toolkit for selecting Darwin Core fields, importing existing tables, checking data quality, and correcting inconsistent values—with a Mandarin-friendly interface.
 
-1. Creating a data template
-2. Editing data
-3. Validating datasets
-4. Cleaning data
+Prepare your data for publishing workflows through IPT and GBIF.
 
-Developed by TaiBIF (Taiwan Biodiversity Information Facility), this toolkit helps biodiversity data providers, especially Mandarin-speaking users, streamline dataset preparation and meet global publishing standards such as GBIF through IPT (Integrated Publishing Toolkit).
+**[Download](https://github.com/TaiBIF/taibif-open-data-toolkit/releases/latest) · [Quick Start](#quick-start) · [Workflow](#workflow)**
 
-The toolkit is currently designed primarily for Mandarin users, while the interface also includes English and Spanish translations.
+</div>
+
+Developed by TaiBIF (Taiwan Biodiversity Information Facility). The toolkit is designed primarily for Mandarin-speaking users and also includes English and Spanish interface translations.
+
+
+## Contents
+
+- [Why Use This Toolkit?](#why-use-this-toolkit)
+- [Workflow](#workflow)
+- [Download](#download)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Input and Output](#input-and-output)
+- [FAQ](#faq)
+- [Development](#development)
+- [Contact](#contact)
+- [License](#license)
+
+## Why Use This Toolkit?
+
+Preparing biodiversity data for sharing often means translating local column names, checking required values, and correcting inconsistent entries across many records. Doing this manually in a spreadsheet can make it difficult to track which records still need attention.
+
+TaiBIF Open Data Toolkit brings these tasks into a guided desktop workflow for researchers, collection managers, and biodiversity data providers. Templates use Darwin Core, a shared vocabulary for biodiversity data, to help structure your dataset for exchange and reuse.
+
+| If you need to… | The toolkit helps you… |
+|---|---|
+| Decide which fields your dataset needs | Choose a template and review Darwin Core field descriptions |
+| Reuse a table with different column names | Import CSV / TSV files and map columns to template fields |
+| Find missing values and formatting issues | Validate data and locate records that need attention |
+| Correct inconsistent values across many records | Filter data and apply bulk replacements |
+| Prepare data for publication | Edit, validate, clean, and export data for the next stage |
+
+## Workflow
+
+Import an existing table or enter data directly. Validate your dataset, correct issues, and validate again before exporting. You can return to earlier steps to adjust your data or template.
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#ECFDF5", "primaryTextColor": "#243746", "primaryBorderColor": "#74BFA5", "lineColor": "#82969F", "secondaryColor": "#EFF6FF", "tertiaryColor": "#F8FAFC", "clusterBkg": "#F8FAFC", "clusterBorder": "#D8E3E8", "edgeLabelBackground": "#FFFFFF"}}}%%
+flowchart TD
+    subgraph TOOL["TaiBIF Open Data Toolkit"]
+        A["1. Project<br/>Create or open a project"]
+        B["2. Data Template<br/>Choose dataset type and standard fields"]
+        C["3. Data Editing<br/>Enter data or import and map fields"]
+        D["4. Data Validation<br/>Identify missing values and format issues"]
+        E["5. Data Cleaning<br/>Filter records and apply bulk corrections"]
+        F["Export Project Data<br/>ZIP containing CSV tables"]
+
+        A --> B --> C --> D
+        D -->|Review issues or proceed to export| E
+        E -->|Validate again after corrections| D
+        E --> F
+        C -.->|Export current table| CSV["CSV"]
+    end
+
+    INPUT["Existing Data<br/>CSV / TSV"] -->|Import| C
+    F -.-> NEXT["Next: Publishing Workflow<br/>Prepare for publication to GBIF through IPT"]
+
+    classDef step fill:#ECFDF5,stroke:#74BFA5,color:#243746;
+    classDef file fill:#EFF6FF,stroke:#93B5DC,color:#243746;
+    classDef external fill:#FFFFFF,stroke:#B8C6CE,color:#526570;
+
+    class A,B,C,D,E step;
+    class INPUT,CSV,F file;
+    class NEXT external;
+
+    style TOOL fill:#F8FAFC,stroke:#D8E3E8,color:#243746;
+```
+
+Project data export is available from the Data Cleaning page. The toolkit prepares data; publication through IPT (Integrated Publishing Toolkit) and GBIF is a separate workflow.
 
 ## Download
 
-The latest packaged desktop application can be downloaded from the [GitHub Releases page](https://github.com/TaiBIF/taibif-open-data-toolkit/releases/latest).
+Download the desktop application from the [GitHub Releases page](https://github.com/TaiBIF/taibif-open-data-toolkit/releases/latest). Choose an installer that matches your operating system and computer architecture from the files available in the release.
 
-Choose the file that matches your operating system and computer architecture.
+To use the packaged application, download an installer rather than the repository's source code archives. The development instructions below are for running the app from source.
+
+## Quick Start
+
+1. **Create a project.** Open the application and create a project for your dataset.
+2. **Choose a template.** Select a Checklist, Occurrence, or Sampling Event template and choose the fields you need.
+3. **Add your data.** Import a CSV / TSV file and map its columns to the selected template, or enter records directly in the table.
+4. **Validate.** Review the reported issues and identify records that need attention.
+5. **Clean and revalidate.** Filter affected records, apply corrections, and run validation again.
+6. **Export.** Export the current table as CSV from Data Editing, or export the project's tables as a ZIP file from Data Cleaning.
+
+If your data is in Excel, save the relevant worksheet as CSV or TSV before importing it.
+
+<!-- TODO: Add a downloadable sample CSV and a walkthrough using the same sample as the screenshots. -->
 
 ## Features
 
-### Template Generator
+### Build a Template for Your Dataset
 
-Quickly create data templates for common biodiversity dataset types, including Checklist, Occurrence, and Sampling Event datasets.
+Start with standard fields instead of designing your table from scratch.
 
-The template workflow supports:
+- Choose templates for Checklist, Occurrence, and Sampling Event datasets.
+- Review Darwin Core field descriptions and reference information while selecting fields.
+- Add clearly labeled custom fields for project-specific needs.
 
-- Darwin Core-based field selection.
-- Field descriptions and reference information.
-- Custom fields for project-specific needs.
-- Clear labeling of custom fields in the template field list.
+![Template selection showing Darwin Core field descriptions and selected fields](docs/images/template.png)
 
-### Spreadsheet-like Editing Interface
+### Bring Existing Tables into a Standard Structure
 
-Edit dataset records in a familiar table-based interface similar to a spreadsheet.
+Reuse your existing data and map its columns to the selected template.
 
-The editing workflow supports:
+- Import CSV / TSV files and review mapped, unmapped, and duplicated fields.
+- Edit records in a familiar spreadsheet-like interface, including adding and deleting blank rows.
+- Review field value summaries to understand data distributions and spot inconsistent entries.
 
-- Inline data editing.
-- Adding and deleting blank rows.
-- Importing and exporting table data.
-- Field value summaries for reviewing data distribution.
-- Automatic table page sizing based on the available window space.
+![Map imported columns to template fields](docs/images/field-mapping.png)
 
-### Data Import and Field Mapping
+### Find Issues and Correct Data
 
-Import existing datasets and map source columns to project fields.
+Locate records that need attention and apply corrections across multiple rows.
 
-The mapping workflow helps users:
+- Check for missing required fields, field name mismatches, invalid dates and coordinates, identifier issues, and controlled vocabulary values. Review notices about empty optional fields and duplicated identifiers.
+- Filter text using exact, fuzzy, or regular expression searches, and find duplicate values in selected fields.
+- Apply string replacements, swap field values, or synchronize species information using the available cleaning tools.
 
-- Match imported field names to template fields.
-- Review mapped, unmapped, and duplicated fields.
-- Convert existing files into a structure aligned with the selected Darwin Core template.
+For example, if a locality appears with different spellings, filter the relevant records and replace the variants with the value you choose. The standardization rule remains your decision.
 
-### Darwin Core Validator
+![Validation results and tools for correcting affected records](docs/images/cleaning.png)
 
-Validate datasets before publication and quickly identify records that need correction.
+## Input and Output
 
-The validation workflow checks for issues such as:
+| Operation | Format | Result |
+|---|---|---|
+| Import existing data | CSV / TSV | Records mapped to fields in the selected project table |
+| Export a table from Data Editing | CSV | The current table's column headers and records |
+| Export project data from Data Cleaning | ZIP | One CSV file for each project table |
 
-- Missing required fields.
-- Field name mismatches.
-- Invalid dates, coordinates, identifiers, and controlled vocabulary values.
-- Empty optional fields and duplicated identifiers.
+The ZIP export contains CSV tables named with the project name and internal table name. It does not include Darwin Core Archive descriptors such as `meta.xml` or dataset metadata such as `eml.xml`, so it is not a complete Darwin Core Archive. Complete the required mapping and metadata steps in your downstream publishing workflow.
 
-### Data Cleaning Tools
+## FAQ
 
-Use data cleaning tools to find, filter, and standardize inconsistent values before publishing.
+### Do I need to know Darwin Core before using the toolkit?
 
-The cleaning workflow includes:
+You can start with the built-in templates and field descriptions. You will still need to choose fields that represent your data and review their meaning. Darwin Core is a standard vocabulary for sharing biodiversity information.
 
-- Text filtering with exact, fuzzy, and regular expression search modes.
-- Duplicate value filtering for selected fields.
-- String replacement with exact, fuzzy, and regular expression search modes.
-- Field value swapping.
-- Species information synchronization.
-- Filter clearing and data export.
+### Can I import Excel files?
 
-### Darwin Core Archive Preparation
+The import workflow accepts CSV and TSV files. Save the worksheet you want to import in one of these formats first.
 
-Cleaned and validated data can be exported for downstream publishing workflows, including preparation for IPT upload and GBIF publication.
+### Does the toolkit publish directly to GBIF?
 
-## Intended Users
+The toolkit handles data preparation and export. Publishing through IPT and GBIF is a separate process that includes dataset mapping and metadata preparation.
 
-TaiBIF Open Data Toolkit is intended for:
+### Does passing validation guarantee that my data is correct?
 
-- Biodiversity data providers.
-- Researchers and data managers preparing Darwin Core datasets.
-- Organizations publishing biodiversity data through IPT and GBIF.
-- Users who need a Mandarin-friendly workflow for biodiversity data standardization.
+Validation checks the rules implemented by the toolkit. Review the scientific accuracy and context of your records as well; a correctly formatted value can still be inaccurate.
 
 ## Development
 
-### Requirements
-
-- Node.js 22 is recommended.
-- npm 7 or later is required.
-- Native dependencies are used by the app, including `sqlite3`.
-
-For macOS development, install Xcode Command Line Tools if native dependency installation fails:
-
-```bash
-xcode-select --install
-```
-
-For Windows development, install the Visual Studio Build Tools with C++ build support if native dependency installation fails.
-
-Install dependencies:
+Node.js 22 is recommended, and npm 7 or later is required. After cloning the repository, install dependencies and start the development app:
 
 ```bash
 npm ci
-```
-
-Start the development app:
-
-```bash
 npm run start
 ```
 
-Build the application code:
+Create a project and select a template before using the editing and cleaning tables.
 
-```bash
-npm run build
-```
-
-Package the desktop application for the current platform:
-
-```bash
-npm run package
-```
-
-`npm run build` builds the application code. To generate a packaged desktop application, use `npm run package`.
-
-### Development Database
-
-The bundled base SQLite database is stored at:
-
-```text
-assets/odt.sqlite3
-```
-
-In development mode, the app reads this file directly.
-
-In packaged builds, this same file is bundled into the app resources. On startup, the packaged app copies the bundled database into the app user data folder when the user data database does not exist, then reads and writes the user data copy.
-
-This database is intended to be a clean starting point. After cloning the repository and starting the app, create a project and select a template before using the data editing and data cleaning tables.
-
-The packaged app also checks the user data database with SQLite integrity checking and rebuilds it from the bundled database if corruption is detected. If the user data database is healthy, app updates do not replace user-created projects or table data. Instead, the app syncs bundled system tables such as `intro` and `template_*` tables when the app version changes.
-
-### Native Dependency Notes
-
-During dependency installation, the project runs post-install steps that prepare Electron runtime dependencies:
-
-```text
-electron-builder install-app-deps
-```
-
-If installation fails around `sqlite3`, `node-gyp`, or native module rebuilding, first confirm that Node.js 22 is being used and that the platform build tools listed above are installed.
-
-The release workflow installs dependencies in separate steps to make native dependency issues easier to isolate:
-
-```bash
-npm ci --ignore-scripts
-npm --prefix release/app ci
-npm run build:dll
-```
-
-This avoids running the root `postinstall` script too early in CI. Local development can usually use `npm ci` directly, but the split workflow is useful when diagnosing dependency installation problems.
-
-## Project Structure
-
-- `src/main`: Electron main process, IPC handlers, database integration, and system-level logic.
-- `src/renderer`: User interface, pages, components, styles, and localization files.
-- `src/shared`: Shared constants and types used by both main and renderer processes.
-- `assets`: Application icons, images, and base data files.
-- `release/app`: Runtime package metadata and production dependencies used during packaging.
+See the [Development Guide](docs/development.md) for platform build tools, build and packaging commands, database behavior, native dependency troubleshooting, and project structure.
 
 ## Contact
 
-For questions, collaboration, or feedback, please contact the TaiBIF team via the [official contact form](https://portal.taibif.tw/zh-hant/contact-us).
+For questions, collaboration, or feedback, contact the TaiBIF team via the [official contact form](https://portal.taibif.tw/zh-hant/contact-us).
 
 ## License
 
-This project is released under the MIT License. See `LICENSE` for details.
+This project is released under the [MIT License](LICENSE).
 
-This project is based on Electron React Boilerplate. See `NOTICE` for attribution information.
+This project is based on Electron React Boilerplate. See [NOTICE](NOTICE) for attribution information.
